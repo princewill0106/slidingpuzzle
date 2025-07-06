@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sliding Tile Puzzle</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #puzzle {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      width: 90vw;
+      max-width: 400px;
+      height: 90vw;
+      max-height: 400px;
+    }
+    .tile {
+      background: #4CAF50;
+      color: white;
+      font-size: 2em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .tile:active {
+      background: #45a049;
+    }
+    .empty {
+      background: transparent;
+      cursor: default;
+    }
+    #message {
+      position: absolute;
+      top: 10px;
+      font-size: 1.5em;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div id="message"></div>
+  <div id="puzzle"></div>
+
+  <script>
+    const puzzle = document.getElementById('puzzle');
+    const message = document.getElementById('message');
+    const size = 4;
+    let tiles = [];
+
+    function createTiles() {
+      const nums = [...Array(size * size).keys()].sort(() => Math.random() - 0.5);
+      tiles = nums.map(n => n);
+    }
+
+    function renderTiles() {
+      puzzle.innerHTML = '';
+      tiles.forEach((val, index) => {
+        const tile = document.createElement('div');
+        tile.classList.add('tile');
+        if (val === 0) {
+          tile.classList.add('empty');
+        } else {
+          tile.textContent = val;
+          tile.addEventListener('click', () => moveTile(index));
+        }
+        puzzle.appendChild(tile);
+      });
+    }
+
+    function moveTile(index) {
+      const emptyIndex = tiles.indexOf(0);
+      const validMoves = [
+        emptyIndex - 1, emptyIndex + 1,
+        emptyIndex - size, emptyIndex + size
+      ];
+
+      if (validMoves.includes(index) &&
+          !(index % size === size - 1 && emptyIndex % size === 0) &&
+          !(index % size === 0 && emptyIndex % size === size - 1)) {
+        [tiles[emptyIndex], tiles[index]] = [tiles[index], tiles[emptyIndex]];
+        renderTiles();
+        checkWin();
+      }
+    }
+
+    function checkWin() {
+      for (let i = 0; i < tiles.length - 1; i++) {
+        if (tiles[i] !== i + 1) return;
+      }
+      message.textContent = "🎉 You solved it!";
+    }
+
+    createTiles();
+    renderTiles();
+  </script>
+</body>
+</html>
